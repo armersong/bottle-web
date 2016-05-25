@@ -1,0 +1,107 @@
+<?xml version ="1.0" encoding="UTF-8"?>
+<config ver="1.0">
+    <libpathes>
+        <path>3rd</path>
+    </libpathes>
+    <!-- 1. 服务 -->
+    <services>
+        <service id="event_service" class="services.event_service.EventService" >
+        </service>
+        <service id="file_service" class="services.file_service.FileService">
+            <params>
+                <!-- type: int|float|string|subnode -->
+                <param name="file_dir" type="string">./static</param>
+                <param name="image_dir" type="string">./static/images</param>
+                <!-- put here temp -->
+                <param name="download_url" type="string">http://localhost:8010/static</param>
+                <param name="upload_password" type="string">123456</param>
+            </params>
+        </service>
+        <service id="image_service" class="services.image_service.ImageService">
+            <params>
+                <!-- type: int|float|string -->
+                <param name="quality" type="int">60</param>
+                <!-- image spec -->
+                <param name="small" type="int">240</param>
+                <param name="medium" type="int">640</param>
+                <param name="big" type="int">1280</param>
+            </params>
+        </service>
+        <!--<service id="database_service" class="services.database_service.DataBaseService" >-->
+            <!--<params>-->
+                <!--&lt;!&ndash; type: int|float|string &ndash;&gt;-->
+                <!--<param name="host" type="string">localhost</param>-->
+                <!--<param name="port" type="int">3306</param>-->
+                <!--<param name="user" type="string">root</param>-->
+                <!--<param name="passwd" type="string">123456</param>-->
+                <!--<param name="db" type="string">myfamily</param>-->
+            <!--</params>-->
+        <!--</service>-->
+        <service id="mongodb_service" class="services.mongodb_service.MongodbService" >
+            <params>
+                <param name="host" type="string">localhost</param>
+                <param name="port" type="int">27017</param>
+            </params>
+        </service>
+        <service id="scheduler_service" class="services.scheduler_service.SchedulerService" >
+            <dep-services>mongodb_service</dep-services>
+            <params>
+                <param name="db" type="string">demo</param>
+                <param name="collection" type="string">scheduler</param>
+                <param name="worker_num" type="int">1</param>
+            </params>
+        </service>
+        <!-- add other service here -->
+    </services>
+    <!-- 2. 拦截器，任何时候都被执行 -->
+    <interceptors>
+        <interceptor id="cross_domain_filter" class="interceptors.cross_domain_filter.CrossDomainFilter">
+        </interceptor>
+        <interceptor id="auth_check" class="interceptors.auth_check.AuthCheck">
+            <params>
+                <param name="field_name" type="string">token</param>
+                <param name="filters" type="subnode">
+                    <excludes>
+                        <!-- method 默认为all, 内容为正则表达式。如果使用*，则为.* -->
+                        <exclude method="all" comment="静态文件">/static/.*</exclude>
+                        <exclude method="post" comment="版本更新">/versions/.*</exclude>
+                        <exclude method="post" comment="验证码">/users/.*/vc</exclude>
+                        <exclude method="post" comment="注册">/users</exclude>
+                        <exclude method="post" comment="登陆" >/users/.*/token</exclude>
+                        <exclude method="post" comment="忘记密码">/users/.*/reset_password</exclude>
+                    </excludes>
+                </param>
+            </params>
+            <dep-services>user_service</dep-services>
+        </interceptor>
+    </interceptors>
+    <!-- 3. bottle plugin -->
+    <plugins>
+        <plugin id="session" class="bottle.ext.session.SessionPlugin">
+            <params>
+                <!-- type: int|float|string|node -->
+                <param name="host" type="string">localhost</param>
+                <param name="port" type="int">6379</param>
+                <param name="db" type="int">0</param>
+                <param name="cookie_lifetime" type="int">86400</param>
+            </params>
+        </plugin>
+    </plugins>
+    <!-- 4. 控制器 -->
+    <actions comment="url->action map">
+        <!-- static -->
+        <action path="/static/&lt;filename:path&gt;" method="get" func="download_files" class="actions.static.StaticAction">
+            <dep-services>file_service</dep-services>
+        </action>
+        <!-- images -->
+        <action path="/images" method="post" func="upload_image" class="actions.images.ImageAction">
+            <dep-services>file_service</dep-services>
+        </action>
+
+    </actions>
+    <!-- default server info. -->
+    <!-- if customize run_server_func parameter in AppLoader.run func, ignore below info -->
+    <server>
+        <listen>127.0.0.1:8010</listen>
+    </server>
+</config>

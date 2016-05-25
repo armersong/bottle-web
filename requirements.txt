@@ -1,0 +1,11 @@
+apscheduler==3.0.5
+blinker
+bottle
+bottle-session
+gevent
+jpush
+mprpc
+peewee
+pillow
+pymongo
+
