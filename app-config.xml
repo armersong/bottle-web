@@ -27,22 +27,27 @@
                 <param name="big" type="int">1280</param>
             </params>
         </service>
-        <!--<service id="database_service" class="services.database_service.DataBaseService" >-->
-            <!--<params>-->
-                <!--&lt;!&ndash; type: int|float|string &ndash;&gt;-->
-                <!--<param name="host" type="string">localhost</param>-->
-                <!--<param name="port" type="int">3306</param>-->
-                <!--<param name="user" type="string">root</param>-->
-                <!--<param name="passwd" type="string">123456</param>-->
-                <!--<param name="db" type="string">myfamily</param>-->
-            <!--</params>-->
-        <!--</service>-->
+        <!--
+        <service id="database_service" class="services.database_service.DataBaseService" >
+            <params>
+                &lt;!&ndash; type: int|float|string &ndash;&gt;
+                <param name="host" type="string">localhost</param>
+                <param name="port" type="int">3306</param>
+                <param name="user" type="string">root</param>
+                <param name="passwd" type="string">123456</param>
+                <param name="db" type="string">myfamily</param>
+            </params>
+        </service>
+        -->
+        <!--
         <service id="mongodb_service" class="services.mongodb_service.MongodbService" >
             <params>
                 <param name="host" type="string">localhost</param>
                 <param name="port" type="int">27017</param>
             </params>
         </service>
+        -->
+        <!--
         <service id="scheduler_service" class="services.scheduler_service.SchedulerService" >
             <dep-services>mongodb_service</dep-services>
             <params>
@@ -51,6 +56,7 @@
                 <param name="worker_num" type="int">1</param>
             </params>
         </service>
+        -->
         <!-- add other service here -->
     </services>
     <!-- 2. 拦截器，任何时候都被执行 -->
@@ -72,7 +78,7 @@
                     </excludes>
                 </param>
             </params>
-            <dep-services>user_service</dep-services>
+            <dep-services></dep-services>
         </interceptor>
     </interceptors>
     <!-- 3. bottle plugin -->
@@ -102,6 +108,6 @@
     <!-- default server info. -->
     <!-- if customize run_server_func parameter in AppLoader.run func, ignore below info -->
     <server>
-        <listen>127.0.0.1:8010</listen>
+        <listen>127.0.0.1:8020</listen>
     </server>
 </config>
