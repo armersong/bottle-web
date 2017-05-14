@@ -55,7 +55,7 @@ import os
 import sys
 import types
 
-from bottle import Bottle, install, PluginError, run
+from bottle import Bottle, TEMPLATE_PATH, install, PluginError, run
 from importlib import import_module
 from xml.etree.ElementTree import parse, tostring
 
@@ -515,12 +515,8 @@ class Interceptor(object):
             config = route.config
             # conf = config.get(self.keyword) or {}
             func_args = route.get_callback_args()
-            try:
-                return self._handle(callback, config, func_args, \
-                                    *args, **kwargs)
-            except Exception as exc:
-                self._env.log.exception(unicode(exc))
-                raise
+            return self._handle(callback, config, func_args, \
+                                *args, **kwargs)
         return wrapper
 
     def _handle(self, callback, conf, func_args, *args, **kwargs):

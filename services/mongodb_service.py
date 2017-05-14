@@ -2,7 +2,10 @@
 '''
 Mongodb service client wrapper
 '''
+
 import pymongo
+import urllib
+
 from bson import ObjectId
 from service import Service
 
@@ -27,16 +30,15 @@ class MongodbService(Service):
     UPDATE_OP_SET = 0
     UPDATE_OP_INC = 1
     UPDATE_OP_PUSH = 2
-    def __init__(self, env, host, port):
+    def __init__(self, env, url):
         super(MongodbService, self).__init__(env)
-        self._host = host
-        self._port = port
+        self._url = url
 
     def get_connection_info(self):
-        return (self._host, self._port)
+        return self._url
 
     def get_connection(self):
-        return pymongo.MongoClient(self._host, self._port)
+        return pymongo.MongoClient(host=self._url)
 
     def get_collection(self, db_name, collection_name):
         return self.get_connection()[db_name][collection_name]

@@ -4,7 +4,7 @@ configurable、SVC(Service、View、Controller) Web framework
 # install
 sudo pip install requirements.txt
 
-# Run
+# run
 python demo.py
 
 # stop

@@ -28,7 +28,6 @@ class SchedulerService(Service):
 
     def on_active(self):
         super(SchedulerService, self).on_active()
-        self._db = self.mongodb_service
         self._init_scheduler()
 
     def on_inactive(self):
@@ -37,7 +36,8 @@ class SchedulerService(Service):
 
     def _init_scheduler(self):
         jobstores = {
-            'default': MongoDBJobStore(self._db_name, self._collection_name),
+            'default': MongoDBJobStore(self._db_name, self._collection_name,
+                                       host=self.mongodb_service.get_connection_info()),
         }
         executors = {
             'default': ThreadPoolExecutor(self._worker_num),
@@ -46,13 +46,10 @@ class SchedulerService(Service):
             'coalesce': False,
             'max_instances': 3
         }
-        self._sched = BackgroundScheduler(jobstores=jobstores, \
-                                          executors=executors, \
-                                          job_defaults=job_defaults)
+        self._sched = BackgroundScheduler(jobstores=jobstores, executors=executors, job_defaults=job_defaults)
         self._sched.start()
 
-    def add_job(self, handler, dt, args=None, kwargs=None, \
-                job_id=None, replace_existing=True):
+    def add_job(self, handler, dt, args=None, kwargs=None, job_id=None, replace_existing=True):
         '''
         增加单一任务。执行即消亡
         :param handler: 回调函数。需要考虑多线程问题
@@ -64,14 +61,12 @@ class SchedulerService(Service):
         '''
         args = args or []
         args.insert(0, handler)
-        job = self._sched.add_job(dispatch_expire_job, 'date', run_date=dt, \
-                                  id=job_id, args=args, kwargs=kwargs, \
+        job = self._sched.add_job(dispatch_expire_job, 'date', run_date=dt, id=job_id, args=args, kwargs=kwargs,
                                   replace_existing=replace_existing)
         return job.id
 
     def add_interval_job(self, handler,
-                         weeks=0, days=0, hours=0, minutes=0, seconds=0, \
-                         args=None, kwargs=None, job_id=None, \
+                         weeks=0, days=0, hours=0, minutes=0, seconds=0, args=None, kwargs=None, job_id=None,
                          replace_existing=True):
         '''
         增加定期任务
@@ -88,10 +83,8 @@ class SchedulerService(Service):
         '''
         args = args or []
         args.insert(0, handler)
-        job = self._sched.add_job(dispatch_expire_job, 'interval', \
-                                  weeks=weeks, days=days, hours=hours, \
-                                  minutes=minutes, seconds=seconds, \
-                                  id=job_id, args=args, kwargs=kwargs, \
+        job = self._sched.add_job(dispatch_expire_job, 'interval', weeks=weeks, days=days, hours=hours,
+                                  minutes=minutes, seconds=seconds, id=job_id, args=args, kwargs=kwargs,
                                   replace_existing=replace_existing)
         return job.id
 
